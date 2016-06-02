@@ -1,3 +1,43 @@
+local luafiles = {
+	"lauxlib",
+	"lua",		
+	"luaconf",
+	"lualib"
+}
+	
+local luaplusfiles = {
+	"LuaObject",
+	"LuaStateCD",		
+	"LuaPlus",
+	"LuaState",
+	"LuaPlusInternal",		
+	"LuaStackObject",		
+	"LuaTableIterator",
+	"LuaStateOutFile",
+	"LuaStateOutString",
+	"LuaHelper",
+	"LuaStackObject",
+	"LuaAutoBlock",
+	"LuaStackTableIterator",
+	"LuaCall",
+	"LuaFunction",
+	"LuaPlusCD",
+	"LuaPlusConfig",
+	"LuaHelper_Object",
+	"LuaHelper_StackObject"	
+}
+
+local luatildefiles = {
+	"HostConfig",
+	"LuaDebugger",		
+	"LuaDebuggerComms",
+	"LuaDebuggerHost",
+	"LuaDebuggerProtocol",		
+	"LuaHostWindows",		
+	"ReceiveMessageBuffer",
+	"SendMessageBuffer"
+}
+
 local IDE = iif(_ACTION == nil, "vs2015", _ACTION)
 if _ACTION == "gmake" then
 	if "linux-gcc" == _OPTIONS["gcc"] then
@@ -26,29 +66,60 @@ newoption {
 	}
 
 function copyHeaders()
+
+	-- bgfx
+	
 	--os.execute("mkdir \"../../LumixEngine/external/bgfx/include\"")
 	os.execute("xcopy \"../3rdparty/bgfx/include\" \"../../LumixEngine/external/bgfx/include\"  /S /Y");
 
+	-- lua
+	
 	--os.execute("mkdir \"../../LumixEngine/external/lua/include\"")
-	os.copyfile("../3rdparty/lua/src/lauxlib.h", "../../LumixEngine/external/lua/include/lauxlib.h");
-	os.copyfile("../3rdparty/lua/src/lua.h", "../../LumixEngine/external/lua/include/lua.h");
-	os.copyfile("../3rdparty/lua/src/lua.hpp", "../../LumixEngine/external/lua/include/lua.hpp");
-	os.copyfile("../3rdparty/lua/src/luaconf.h", "../../LumixEngine/external/lua/include/luaconf.h");
-	os.copyfile("../3rdparty/lua/src/lualib.h", "../../LumixEngine/external/lua/include/lualib.h");
-
+	for i = 1, #luafiles do
+		os.copyfile("../3rdparty/lua/src/" .. luafiles[i] .. ".h", "../../LumixEngine/external/lua/include/" .. luafiles[i] .. ".h"	)	
+	end
+	
+	os.copyfile( "../3rdparty/lua/src/lua.hpp", "../../LumixEngine/external/lua/include/lua.hpp" );
+	
+	-- crunch
+	
 	--os.execute("mkdir \"../../LumixEngine/external/crnlib/include\"")
 	os.copyfile("../3rdparty/crunch/inc/crn_decomp.h", "../../LumixEngine/external/crnlib/include/crn_decomp.h");
 	os.copyfile("../3rdparty/crunch/inc/crnlib.h", "../../LumixEngine/external/crnlib/include/crnlib.h");
 	os.copyfile("../3rdparty/crunch/inc/dds_defs.h", "../../LumixEngine/external/crnlib/include/dds_defs.h");
 
+	-- assimp
+	
 	os.execute("xcopy \"../3rdparty/assimp/include\" \"../../LumixEngine/external/assimp/include\"  /S /Y");
+	
+	-- sdl
 	
 	os.mkdir("../../LumixEngine/external/SDL/include")
 	os.execute("xcopy \"../3rdparty/SDL/include\" \"../../LumixEngine/external/SDL/include\"  /S /Y");
 
+	-- recast
+	
 	os.execute("xcopy \"../3rdparty/recastnavigation/Detour/include\" \"../../LumixEngine/external/recast/include\"  /S /Y");
 	os.execute("xcopy \"../3rdparty/recastnavigation/Debug/include\" \"../../LumixEngine/external/recast/include\"  /S /Y");
 	os.execute("xcopy \"../3rdparty/recastnavigation/DebugUtils/include\" \"../../LumixEngine/external/recast/include\"  /S /Y");
+		
+	-- luaplus
+	
+	for i = 1, #luaplusfiles do
+		os.copyfile("../3rdparty/luaplus/" .. luaplusfiles[i] .. ".h", "../../LumixEngine/external/luaplus/" .. luaplusfiles[i] .. ".h");		
+	end
+	
+	os.copyfile("../3rdparty/luaplus/LuaStackObject.inl", "../../LumixEngine/external/luaplus/LuaStackObject.inl");	
+	os.copyfile("../3rdparty/luaplus/LuaCall.inl", "../../LumixEngine/external/luaplus/LuaCall.inl");	
+	os.copyfile("../3rdparty/luaplus/LuaObject.inl", "../../LumixEngine/external/luaplus/LuaObject.inl");	
+	os.copyfile("../3rdparty/luaplus/LuaStackTableIterator.inl", "../../LumixEngine/external/luaplus/LuaStackTableIterator.inl");	
+	os.copyfile("../3rdparty/luaplus/LuaState.inl", "../../LumixEngine/external/luaplus/LuaState.inl");	
+	
+	-- luatilde
+	
+	for i = 1, #luatildefiles do
+		os.copyfile("../3rdparty/luatilde/" .. luatildefiles[i] .. ".h", "../../LumixEngine/external/luatilde/" .. luatildefiles[i] .. ".h");		
+	end	
 end
 
 function installEx(platform)
@@ -107,6 +178,8 @@ function installEx(platform)
 	copyLibrary("crnlib", false)
 	copyLibrary("SDL", false)
 	copyLibrary("assimp", true)
+	copyLibrary("luaplus", false)	
+	copyLibrary("luatilde", false)
 	
 	if platform == "windows" then
 		copyHeaders()
@@ -150,18 +223,38 @@ function install(ide, platform)
 	copyLibrary("lua")
 	copyLibrary("recast")
 	copyLibrary("bgfx")
+	copyLibrary("luaplus")
+	copyLibrary("luatilde")
 	
 	os.execute("xcopy \"../3rdparty/bgfx/include\" \"../../LumixEngine/external/bgfx/include\"  /S /Y");
 
-	os.copyfile("../3rdparty/lua/src/lauxlib.h", "../../LumixEngine/external/lua/include/lauxlib.h");
-	os.copyfile("../3rdparty/lua/src/lua.h", "../../LumixEngine/external/lua/include/lua.h");
-	os.copyfile("../3rdparty/lua/src/lua.hpp", "../../LumixEngine/external/lua/include/lua.hpp");
-	os.copyfile("../3rdparty/lua/src/luaconf.h", "../../LumixEngine/external/lua/include/luaconf.h");
-	os.copyfile("../3rdparty/lua/src/lualib.h", "../../LumixEngine/external/lua/include/lualib.h");
+	for i = 1, #luafiles do
+		os.copyfile("../3rdparty/lua/src/" .. luafiles[i] .. ".h", "../../LumixEngine/external/lua/include/" .. luafiles[i] .. ".h"	)
+	end
+	
+	os.copyfile("../3rdparty/lua/src/lua.hpp", "../../LumixEngine/external/lua/include/lua.hpp" );
 
 	os.execute("xcopy \"../3rdparty/recastnavigation/Detour/include\" \"../../LumixEngine/external/recast/include\"  /S /Y");
 	os.execute("xcopy \"../3rdparty/recastnavigation/Debug/include\" \"../../LumixEngine/external/recast/include\"  /S /Y");
 	os.execute("xcopy \"../3rdparty/recastnavigation/DebugUtils/include\" \"../../LumixEngine/external/recast/include\"  /S /Y");
+	
+	-- luaplus
+
+	for i = 1, #luaplusfiles do
+		os.copyfile("../3rdparty/luaplus/" .. luaplusfiles[i] .. ".h", "../../LumixEngine/external/luaplus/" .. luaplusfiles[i] .. ".h");		
+	end	
+	
+	os.copyfile("../3rdparty/luaplus/LuaStackObject.inl", "../../LumixEngine/external/luaplus/LuaStackObject.inl");	
+	os.copyfile("../3rdparty/luaplus/LuaCall.inl", "../../LumixEngine/external/luaplus/LuaCall.inl");	
+	os.copyfile("../3rdparty/luaplus/LuaObject.inl", "../../LumixEngine/external/luaplus/LuaObject.inl");	
+	os.copyfile("../3rdparty/luaplus/LuaStackTableIterator.inl", "../../LumixEngine/external/luaplus/LuaStackTableIterator.inl");	
+	os.copyfile("../3rdparty/luaplus/LuaState.inl", "../../LumixEngine/external/luaplus/LuaState.inl");	
+	
+	-- luatilde
+	
+	for i = 1, #luatildefiles do
+		os.copyfile("../3rdparty/luatilde/" .. luatildefiles[i] .. ".h", "../../LumixEngine/external/luatilde/" .. luatildefiles[i] .. ".h");		
+	end	
 end
 
 
@@ -571,3 +664,44 @@ project "bgfx"
 		defines {
 			"BGFX_CONFIG_DEBUG=1",
 		}
+
+-- luaplus project
+
+project "luaplus"
+	kind "StaticLib"
+
+	configuration { "vs*" }
+		defines { "_CRT_SECURE_NO_WARNINGS" }
+
+	configuration {}
+	
+	includedirs { "../3rdparty/luaplus"
+		, "../3rdparty/lua/src"
+	}
+
+	files { "../3rdparty/luaplus/**.h"
+		, "../3rdparty/luaplus/**.cpp"
+		, "genie.lua" }
+
+	defaultConfigurations()
+	
+-- luatilde project
+
+project "luatilde"
+	kind "StaticLib"
+
+	configuration { "vs*" }
+		defines { "_CRT_SECURE_NO_WARNINGS" }
+
+	platforms { "x32", "x64" }
+		defines { "WIN32" }
+		
+	includedirs { "../3rdparty/luatilde"
+		, "../3rdparty/lua/src"
+	}
+
+	files { "../3rdparty/luatilde/**.h"
+		, "../3rdparty/luatilde/**.cpp"
+		, "genie.lua" }
+
+	defaultConfigurations()
